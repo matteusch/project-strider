@@ -16,4 +16,4 @@
 #define CAM_PIN_HREF    23
 #define CAM_PIN_PCLK    22
 
-#define CAM_XVCLK_FREQ  20000000
+#define CAM_XVCLK_FREQ  16000000

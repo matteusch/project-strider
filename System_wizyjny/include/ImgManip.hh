@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
+#include <vector>
+
+struct Blob;
 
 class ImgManip
 {
@@ -16,6 +19,9 @@ class ImgManip
         int _width;
         int _height;
 
+        int _labels_num;
+        std::vector<Blob> _labels_info;
+
         int CoordinatestoIndex(int x, int y);
 
     public:
@@ -29,10 +35,23 @@ class ImgManip
         uint8_t * getMatU();
         uint8_t * getMatV();
         uint8_t * getResult();
+        std::vector<Blob> getLabelsInfo();
 
         void separateChannels();
         void detectColors(uint8_t minU, uint8_t maxU, uint8_t minV, uint8_t maxV);
         void dilation(bool * StructElem);
         void erosion(bool * StructElem);
         int label();
+        void countArea();
+        void findCenter();
+        void countRoundness();
+};
+
+struct Blob
+{
+    uint8_t index;
+    uint32_t area;
+    float x;
+    float y;
+    float roundness;
 };

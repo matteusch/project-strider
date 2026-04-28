@@ -11,6 +11,8 @@ ImgManip::ImgManip()
 
     _width = 0;
     _height = 0;
+
+    _labels_num = 0;
 }
 
 ImgManip::~ImgManip()
@@ -48,6 +50,8 @@ void ImgManip::setImg(uint8_t *Img, int width, int height)
 
     _width = width;
     _height = height;
+
+    _labels_info.clear();
 }
 
 void ImgManip::separateChannels()
@@ -203,7 +207,70 @@ int ImgManip::label()
 
     for(int i = 0; i < _width * _height; i++) if(_labels[i] > 0) _labels[i] = ConnectionArray[_labels[i]];
 
-    return nextNewLabel - 1;
+    _labels_num = nextNewLabel - 1;
+
+    for(int i=1; i<=_labels_num; i++) _labels_info.push_back({(uint8_t)i,0,0,0,0});
+
+    return _labels_num;
+}
+
+void ImgManip::countArea()
+{
+    for(Blob & b: _labels_info)
+    {
+        for(int i=0; i<_width*_height; i++) 
+        {
+            if(_labels[i] == b.index) b.area++;
+        }
+    }
+}
+
+void ImgManip::findCenter()
+{
+    for(Blob & b: _labels_info)
+    {
+        int sumX = 0, sumY = 0;
+
+        for(int y=0; y<_height; y++)
+        {
+            for(int x=0; x<_width; x++)
+            {
+                if(_labels[CoordinatestoIndex(x,y)] == b.index)
+                {
+                    sumX += x;
+                    sumY += y;
+                }
+            }
+        }
+        
+        b.x = sumX / (float)b.area;
+        b.y = sumY / (float)b.area;
+    }
+}
+
+void ImgManip::countRoundness()
+{
+    for(Blob & b: _labels_info)
+    {
+        uint32_t Rmax2 = 0;
+
+        for(int y=0; y<_height; y++)
+        {
+            for(int x=0; x<_width; x++)
+            {
+                if(_labels[CoordinatestoIndex(x,y)] == b.index)
+                {
+                    int buf1 = x - b.x;
+                    int buf2 = y - b.y;
+                    float R2 = buf1*buf1 + buf2*buf2;
+
+                    if(R2 > Rmax2) Rmax2 = R2;
+                }
+            }
+        }
+        
+        b.roundness = (float)b.area/(3.14* (float)Rmax2);
+    }
 }
 
 int ImgManip::CoordinatestoIndex(int x, int y)
@@ -229,4 +296,9 @@ uint8_t * ImgManip::getMatV()
 uint8_t * ImgManip::getResult()
 {
     return _result;
+}
+
+std::vector<Blob> ImgManip::getLabelsInfo()
+{
+    return _labels_info;
 }
