@@ -8,8 +8,8 @@
 class OV2640
 {
     private:
-        int _width;
-        int _height;
+        uint32_t _width;
+        uint32_t _height;
 
     public:
         OV2640();
@@ -18,6 +18,6 @@ class OV2640
         bool init();
         uint8_t * capture();
 
-        int getWidth();
-        int getHeight();
+        uint32_t getWidth();
+        uint32_t getHeight();
 };

@@ -15,6 +15,7 @@ class ImgManip
         uint8_t * _result;
         uint8_t * _buf;
         uint8_t * _labels;
+        uint8_t * _edges;
 
         int _width;
         int _height;
@@ -35,10 +36,12 @@ class ImgManip
         uint8_t * getMatU();
         uint8_t * getMatV();
         uint8_t * getResult();
+        uint8_t * getEdges();
         std::vector<Blob> getLabelsInfo();
 
         void separateChannels();
         void detectColors(uint8_t minU, uint8_t maxU, uint8_t minV, uint8_t maxV);
+        void detectEdges();
         void dilation(bool * StructElem);
         void erosion(bool * StructElem);
         int label();

@@ -58,12 +58,12 @@ uint8_t * OV2640::capture()
     return Img;
 }
 
-int OV2640::getWidth()
+uint32_t OV2640::getWidth()
 {
     return _width;
 }
 
-int OV2640::getHeight()
+uint32_t OV2640::getHeight()
 {
     return _height;
 }

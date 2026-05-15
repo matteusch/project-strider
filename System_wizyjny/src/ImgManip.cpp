@@ -8,6 +8,7 @@ ImgManip::ImgManip()
     _matV = nullptr;
     _result = nullptr;
     _buf = nullptr;
+    _edges = nullptr;
 
     _width = 0;
     _height = 0;
@@ -37,6 +38,7 @@ void ImgManip::setImg(uint8_t *Img, int width, int height)
         _result = (uint8_t *)ps_malloc(width * height);
         _buf = (uint8_t *)ps_malloc(width * height);
         _labels = (uint8_t *)ps_malloc(width * height);
+        _edges = (uint8_t *)ps_malloc(width * height);
     }
     else if((_width != width) || (_height != height))
     {
@@ -46,6 +48,7 @@ void ImgManip::setImg(uint8_t *Img, int width, int height)
         _result = (uint8_t *)ps_realloc(_matV, width * height);
         _buf = (uint8_t *)ps_realloc(_matV, width * height);
         _labels = (uint8_t *)ps_realloc(_matV, width * height);
+        _edges = (uint8_t *)ps_realloc(_matV, width * height);
     }
 
     _width = width;
@@ -79,6 +82,35 @@ void ImgManip::detectColors(uint8_t minU, uint8_t maxU, uint8_t minV, uint8_t ma
         if( _matU[i] >= minU && _matU[i] <= maxU && _matV[i] >= minV && _matV[i] <= maxV) _result[i] = 255;
         else _result[i] = 0;
     }
+}
+
+void ImgManip::detectEdges()
+{
+    int8_t Sx[9] = {-1, 0, 1, -2, 0, 2, -1, 0 , 1};
+    int8_t Sy[9] = {-1, -2, -1, 0, 0, 0, 1, 2 , 1};
+
+    memset(_edges, 0, _width * _height);
+
+    for(int y=1; y<_height-1; y++)
+    {
+        for(int x=1; x<_width-1; x++)
+        {
+            int Gx = 0, Gy = 0;
+            int idx = 0;
+
+            for(int a = -1; a <= 1; a++) for(int b = -1; b <=1; b++)
+            {
+                Gx += _matY[CoordinatestoIndex(x+a,y+b)] * Sx[idx];
+                Gy += _matY[CoordinatestoIndex(x+a,y+b)] * Sy[idx];
+                idx++;
+            }
+
+            int G = abs(Gx) + abs(Gy);
+            if(G >= 150) _edges[CoordinatestoIndex(x,y)] = 255;
+            else _edges[CoordinatestoIndex(x,y)] = 0;
+        }
+    }
+
 }
 
 void ImgManip::dilation(bool *StructElem)
@@ -296,6 +328,11 @@ uint8_t * ImgManip::getMatV()
 uint8_t * ImgManip::getResult()
 {
     return _result;
+}
+
+uint8_t *ImgManip::getEdges()
+{
+    return _edges;
 }
 
 std::vector<Blob> ImgManip::getLabelsInfo()
