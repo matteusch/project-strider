@@ -6,7 +6,7 @@ import time
 
 DEVICE = '/dev/ttyUSB0' 
 BAUD_RATE = 1000000
-W, H = 160, 120
+W, H = 176, 144
 SCALE = 4
 
 ser = serial.Serial(DEVICE, BAUD_RATE, timeout=1)

@@ -24,6 +24,7 @@ class ImgManip
         std::vector<Blob> _labels_info;
 
         int CoordinatestoIndex(int x, int y);
+        bool isAround(int x, int y, int neighboarhood);
 
     public:
         ImgManip();
@@ -48,6 +49,7 @@ class ImgManip
         void countArea();
         void findCenter();
         void countRoundness();
+        void filterEdges();
 };
 
 struct Blob

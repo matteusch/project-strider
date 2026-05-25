@@ -305,9 +305,37 @@ void ImgManip::countRoundness()
     }
 }
 
+void ImgManip::filterEdges()
+{
+    for(int y=0; y<_height; y++)
+    {
+        for(int x=0; x<_width; x++)
+        {
+            if(!(_edges[CoordinatestoIndex(x,y)] && isAround(x,y,10))) _edges[CoordinatestoIndex(x,y)] = 0;
+        }
+    }
+}
+
 int ImgManip::CoordinatestoIndex(int x, int y)
 {
     return y*_width + x;
+}
+
+bool ImgManip::isAround(int x, int y, int neighboarhood)
+{
+    for(int i=-neighboarhood; i<=neighboarhood; i++)
+    {
+        for(int j=-neighboarhood; j<=neighboarhood; j++)
+        {
+            if(x+i < 0) break;
+            if(x+i >= _width) break;
+            if(y+j < 0) break;
+            if(y+j >= _height) break;
+            if(_result[CoordinatestoIndex(x+i,y+j)]) return true;
+        }
+    }
+
+    return false;
 }
 
 uint8_t * ImgManip::getMatY()

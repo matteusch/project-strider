@@ -19,7 +19,7 @@ void setup() {
   Serial.flush();
   uart_set_pin(UART_NUM_0, -1, -1, -1, -1);
 
-  Serial2.setTxBufferSize(20000);
+  Serial2.setTxBufferSize(26000);
   Serial2.begin(1000000, SERIAL_8N1, 3, 1);
   while(!Serial2) delay(10);
 
@@ -40,7 +40,15 @@ void loop() {
 
   Manipulator.setImg(Img, Camera.getWidth(), Camera.getHeight());
   Manipulator.separateChannels();
-  Manipulator.detectColors(0,128,150,255);
+  Manipulator.detectColors(0,255,150,255);
+
+  //Zamknięcie
+  Manipulator.dilation(structElem);
+  Manipulator.erosion(structElem);
+
+  //Otwarcie
+  Manipulator.erosion(structElem);
+  Manipulator.dilation(structElem);
 
   //Zamknięcie
   Manipulator.dilation(structElem);
@@ -56,12 +64,14 @@ void loop() {
   Manipulator.findCenter();
   Manipulator.countRoundness();
 
+  Manipulator.filterEdges();
+
   std::vector<Blob> labels_info = Manipulator.getLabelsInfo();
 
   if (Serial2.availableForWrite() >= Camera.getWidth()*Camera.getHeight() + 30) 
   {
     sendFrame(
-      Manipulator.getResult(), 
+      Manipulator.getEdges(), 
       Camera.getWidth() * Camera.getHeight(), 
       interval, 
       fps, 

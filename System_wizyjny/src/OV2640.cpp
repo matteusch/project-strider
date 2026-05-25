@@ -32,7 +32,7 @@ bool OV2640::init()
     config.pin_reset = CAM_PIN_RESET;
     config.xclk_freq_hz = CAM_XVCLK_FREQ;
     config.pixel_format = PIXFORMAT_YUV422;
-    config.frame_size = FRAMESIZE_QQVGA; 
+    config.frame_size = FRAMESIZE_QCIF; 
     config.fb_count = 2;
     config.fb_location = CAMERA_FB_IN_PSRAM;
 
