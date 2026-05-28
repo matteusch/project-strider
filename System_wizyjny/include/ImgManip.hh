@@ -16,6 +16,7 @@ class ImgManip
         uint8_t * _buf;
         uint8_t * _labels;
         uint8_t * _edges;
+        uint8_t * _distance;
 
         int _width;
         int _height;
@@ -38,6 +39,7 @@ class ImgManip
         uint8_t * getMatV();
         uint8_t * getResult();
         uint8_t * getEdges();
+        uint8_t * getDistance();
         std::vector<Blob> getLabelsInfo();
 
         void separateChannels();
@@ -50,6 +52,7 @@ class ImgManip
         void findCenter();
         void countRoundness();
         void filterEdges();
+        void distanceTransform();
 };
 
 struct Blob

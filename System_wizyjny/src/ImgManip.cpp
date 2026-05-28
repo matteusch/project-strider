@@ -9,6 +9,7 @@ ImgManip::ImgManip()
     _result = nullptr;
     _buf = nullptr;
     _edges = nullptr;
+    _distance = nullptr;
 
     _width = 0;
     _height = 0;
@@ -39,16 +40,18 @@ void ImgManip::setImg(uint8_t *Img, int width, int height)
         _buf = (uint8_t *)ps_malloc(width * height);
         _labels = (uint8_t *)ps_malloc(width * height);
         _edges = (uint8_t *)ps_malloc(width * height);
+        _distance = (uint8_t *)ps_malloc(width * height);
     }
     else if((_width != width) || (_height != height))
     {
         _matY = (uint8_t *)ps_realloc(_matY, width * height);
         _matU = (uint8_t *)ps_realloc(_matU, width * height);
         _matV = (uint8_t *)ps_realloc(_matV, width * height);
-        _result = (uint8_t *)ps_realloc(_matV, width * height);
-        _buf = (uint8_t *)ps_realloc(_matV, width * height);
-        _labels = (uint8_t *)ps_realloc(_matV, width * height);
-        _edges = (uint8_t *)ps_realloc(_matV, width * height);
+        _result = (uint8_t *)ps_realloc(_result, width * height);
+        _buf = (uint8_t *)ps_realloc(_buf, width * height);
+        _labels = (uint8_t *)ps_realloc(_labels, width * height);
+        _edges = (uint8_t *)ps_realloc(_edges, width * height);
+        _distance = (uint8_t *)ps_realloc(_distance, width * height);
     }
 
     _width = width;
@@ -316,16 +319,39 @@ void ImgManip::filterEdges()
     }
 }
 
+void ImgManip::distanceTransform()
+{
+    memset(_distance, 0, _width * _height);
+
+    for(int y=1; y<_height; y++)
+    {
+        for(int x=1; x<_width; x++)
+        {
+            if(_result[CoordinatestoIndex(x,y)]) 
+                _distance[(CoordinatestoIndex(x,y))] = 1 + min(_distance[CoordinatestoIndex(x-1,y)], _distance[CoordinatestoIndex(x,y-1)]);
+        }
+    }
+
+    for(int y=_height-2; y>=0; y--)
+    {
+        for(int x=_width-2; x>=0; x--)
+        {
+            if(_result[CoordinatestoIndex(x,y)]) 
+                _distance[(CoordinatestoIndex(x,y))] = (uint8_t)min((int)_distance[CoordinatestoIndex(x,y)], 1+ min(_distance[CoordinatestoIndex(x+1,y)], _distance[CoordinatestoIndex(x,y+1)]));
+        }
+    }
+}
+
 int ImgManip::CoordinatestoIndex(int x, int y)
 {
     return y*_width + x;
 }
 
-bool ImgManip::isAround(int x, int y, int neighboarhood)
+bool ImgManip::isAround(int x, int y, int neighborhood)
 {
-    for(int i=-neighboarhood; i<=neighboarhood; i++)
+    for(int i=-neighborhood; i<=neighborhood; i++)
     {
-        for(int j=-neighboarhood; j<=neighboarhood; j++)
+        for(int j=-neighborhood; j<=neighborhood; j++)
         {
             if(x+i < 0) break;
             if(x+i >= _width) break;
@@ -361,6 +387,11 @@ uint8_t * ImgManip::getResult()
 uint8_t *ImgManip::getEdges()
 {
     return _edges;
+}
+
+uint8_t *ImgManip::getDistance()
+{
+    return _distance;
 }
 
 std::vector<Blob> ImgManip::getLabelsInfo()
