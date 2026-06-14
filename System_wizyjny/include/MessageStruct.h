@@ -3,20 +3,17 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-#pragma pack(push, 1)
+//#pragma pack(push, 1)
 
-typedef struct
-{
-  uint8_t xPos;
-  uint8_t yPos;
+typedef struct __attribute__((packed)) {
+  uint8_t posX;
+  uint8_t posY;
+  uint32_t area;
+} CameraObject;
 
-  uint32_t Area;
-} label;
+typedef struct __attribute__((packed)) {
+  uint8_t objNum;
+  CameraObject objList[10];
+} DataFrame;
 
-typedef struct
-{
-  uint8_t count;
-  label l[10];
-}msg;
-
-#pragma pack(pop)
+//#pragma pack(pop)

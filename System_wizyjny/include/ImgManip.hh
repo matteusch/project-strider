@@ -41,6 +41,7 @@ class ImgManip
         uint8_t * getEdges();
         uint8_t * getDistance();
         std::vector<Blob> getLabelsInfo();
+        int getLabelsNum();
 
         void separateChannels();
         void detectColors(uint8_t minU, uint8_t maxU, uint8_t minV, uint8_t maxV);
@@ -53,6 +54,7 @@ class ImgManip
         void countRoundness();
         void filterEdges();
         void distanceTransform();
+        void separateOverlaps();
 };
 
 struct Blob

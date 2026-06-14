@@ -39,6 +39,16 @@ bool OV2640::init()
     esp_err_t e = esp_camera_init(&config);
     if(e != ESP_OK) return false;
 
+    sensor_t * s = esp_camera_sensor_get();
+    s->set_contrast(s, 1);
+    s->set_saturation(s, 2);
+
+    delay(2000);
+
+    // s->set_exposure_ctrl(s,0);
+    // s->set_whitebal(s,0);
+    // s->set_gain_ctrl(s, 0);
+
     return true;
 }
 

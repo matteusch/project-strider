@@ -340,6 +340,106 @@ void ImgManip::distanceTransform()
                 _distance[(CoordinatestoIndex(x,y))] = (uint8_t)min((int)_distance[CoordinatestoIndex(x,y)], 1+ min(_distance[CoordinatestoIndex(x+1,y)], _distance[CoordinatestoIndex(x,y+1)]));
         }
     }
+
+    uint8_t max_value = 0;
+    for(int y=0; y<_height; y++)
+    {
+        for(int x=0; x<_width; x++)
+        {
+            uint8_t buf = _distance[CoordinatestoIndex(x,y)];
+            if(buf > max_value) max_value = buf;
+        }
+    }
+
+    if(max_value == 0) return;
+
+    for(int y=0; y<_height; y++)
+    {
+        for(int x=0; x<_width; x++)
+        {
+            _distance[CoordinatestoIndex(x,y)] = (uint8_t)((float)_distance[CoordinatestoIndex(x,y)]*255 / (float)max_value);
+        }
+    }
+}
+
+void ImgManip::separateOverlaps()
+{
+    if(_labels_info.empty()) return;
+
+    std::vector<Blob> blobBuf;
+
+    int next_index = _labels_info.back().index + 1;
+
+    for(Blob & b: _labels_info)
+    {
+        uint8_t max_value = 0;
+        float x1 = b.x;
+        float y1 = b.y;
+
+        for(int y=0; y<_height; y++)
+        {
+            for(int x=0; x<_width; x++)
+            {
+                uint8_t buf = _distance[CoordinatestoIndex(x,y)];
+                if(_labels[CoordinatestoIndex(x,y)] == b.index && buf > max_value)
+                {
+                    max_value = buf;
+                    x1 = x;
+                    y1 = y;
+                }
+            }
+        }
+
+        float dx = b.x - x1;
+        float dy = b.y - y1;
+        float distance_from_center = sqrt(dx*dx + dy*dy);
+        float cube_width = sqrt((float)b.area);
+        float thickness_ratio = (float)max_value / cube_width; 
+
+        bool geometric_indicates_overlap = (b.roundness < 0.5f);
+        bool should_split = false;
+
+        if (distance_from_center > 0.15f * cube_width) 
+        {
+            should_split = true;
+        }
+        else if (thickness_ratio < 0.20f && geometric_indicates_overlap)
+        {
+            should_split = true;
+        }
+
+        if (thickness_ratio > 0.40f && b.roundness > 0.70f)
+        {
+            should_split = false;
+        }
+
+        if (!should_split) continue;
+
+        float x2 = 2*b.x - x1;
+        float y2 = 2*b.y - y1;
+        uint32_t newArea = b.area/2;
+        float newRoundness = b.roundness;
+
+        b.x = x1;
+        b.y = y1;
+        b.area = newArea;
+        b.roundness = newRoundness;
+
+        Blob newBlob;
+        newBlob.x = x2;
+        newBlob.y = y2;
+        newBlob.roundness = newRoundness;
+        newBlob.area = newArea;
+        newBlob.index = next_index++;
+
+        blobBuf.push_back(newBlob);
+    }
+
+    if(!blobBuf.empty())
+    {
+        _labels_info.insert(_labels_info.end(), blobBuf.begin(), blobBuf.end());
+        _labels_num = _labels_info.size();
+    }
 }
 
 int ImgManip::CoordinatestoIndex(int x, int y)
@@ -397,4 +497,9 @@ uint8_t *ImgManip::getDistance()
 std::vector<Blob> ImgManip::getLabelsInfo()
 {
     return _labels_info;
+}
+
+int ImgManip::getLabelsNum()
+{
+    return _labels_num;
 }
