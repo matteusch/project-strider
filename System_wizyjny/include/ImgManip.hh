@@ -52,6 +52,7 @@ class ImgManip
         void countArea();
         void findCenter();
         void countRoundness();
+        void checkBottomEdge();
         void filterEdges();
         void distanceTransform();
         void separateOverlaps();
@@ -64,4 +65,5 @@ struct Blob
     float x;
     float y;
     float roundness;
+    bool bottomEdge;
 };

@@ -244,7 +244,7 @@ int ImgManip::label()
 
     _labels_num = nextNewLabel - 1;
 
-    for(int i=1; i<=_labels_num; i++) _labels_info.push_back({(uint8_t)i,0,0,0,0});
+    for(int i=1; i<=_labels_num; i++) _labels_info.push_back({(uint8_t)i,0,0,0,0,false});
 
     return _labels_num;
 }
@@ -305,6 +305,20 @@ void ImgManip::countRoundness()
         }
         
         b.roundness = (float)b.area/(3.14* (float)Rmax2);
+    }
+}
+
+void ImgManip::checkBottomEdge()
+{
+    for(Blob & b: _labels_info)
+    {
+        for(int x=0; x<_width; x++)
+        {
+            if(_labels[CoordinatestoIndex(x,_height-1)] == b.index)
+            {
+                b.bottomEdge = true;
+            }
+        }
     }
 }
 
@@ -399,19 +413,10 @@ void ImgManip::separateOverlaps()
         bool geometric_indicates_overlap = (b.roundness < 0.5f);
         bool should_split = false;
 
-        if (distance_from_center > 0.15f * cube_width) 
-        {
-            should_split = true;
-        }
-        else if (thickness_ratio < 0.20f && geometric_indicates_overlap)
-        {
-            should_split = true;
-        }
+        if (distance_from_center > 0.15f * cube_width) should_split = true;
+        else if (thickness_ratio < 0.20f && geometric_indicates_overlap) should_split = true;
 
-        if (thickness_ratio > 0.40f && b.roundness > 0.70f)
-        {
-            should_split = false;
-        }
+        if (thickness_ratio > 0.40f && b.roundness > 0.70f) should_split = false;
 
         if (!should_split) continue;
 
