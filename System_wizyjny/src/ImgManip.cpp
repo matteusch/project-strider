@@ -314,7 +314,7 @@ void ImgManip::checkBottomEdge()
     {
         for(int x=0; x<_width; x++)
         {
-            if(_labels[CoordinatestoIndex(x,_height-1)] == b.index)
+            if(_labels[CoordinatestoIndex(x,_height-2)] == b.index)
             {
                 b.bottomEdge = true;
             }
@@ -436,6 +436,7 @@ void ImgManip::separateOverlaps()
         newBlob.roundness = newRoundness;
         newBlob.area = newArea;
         newBlob.index = next_index++;
+        newBlob.bottomEdge = false;
 
         blobBuf.push_back(newBlob);
     }

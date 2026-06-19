@@ -40,6 +40,7 @@ bool OV2640::init()
     if(e != ESP_OK) return false;
 
     sensor_t * s = esp_camera_sensor_get();
+    s->set_vflip(s, 1);
     s->set_contrast(s, 1);
     s->set_saturation(s, 2);
 

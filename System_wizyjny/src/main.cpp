@@ -79,6 +79,7 @@ void loop() {
   Manipulator.countArea();
   Manipulator.findCenter();
   Manipulator.countRoundness();
+  Manipulator.checkBottomEdge();
   // Manipulator.filterEdges();
 
   // Manipulator.distanceTransform();
@@ -133,10 +134,13 @@ void sendFrame(uint8_t* data, size_t len, uint32_t interval, float fps, uint8_t 
   Serial2.write((uint8_t *)&fps,4);
   Serial2.write((uint8_t *)&labels, 1);
 
-  for(Blob b: labels_info)
+  uint32_t test = 30000;
+
+  for(Blob & b: labels_info)
   {
     Serial2.write((uint8_t*)&b.index, 1);
-    Serial2.write((uint8_t*)&b.area, 4);
+    if(b.bottomEdge) Serial2.write((uint8_t*)&test, 4);
+    else Serial2.write((uint8_t*)&b.area, 4);
     Serial2.write((uint8_t*)&b.x, 4);
     Serial2.write((uint8_t*)&b.y, 4);
     Serial2.write((uint8_t*)&b.roundness, 4);
